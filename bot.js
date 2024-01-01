@@ -1,14 +1,14 @@
 require('dotenv').config()
 const token = process.env.BOT_TOKEN;
-const {Client, IntentsBitField} = require("discord.js");
+const {Client, IntentsBitField} = require('discord.js');
 const client = new Client({
     intents:[
         IntentsBitField.Flags.Guilds,
     ]
 });
-client.on("ready", () =>{
-    console.log("The AI bot is online");
-    client.user.setActivity("Type !setup to create chat channel");
+client.on('ready', () =>{
+    console.log('The bot is online');
+    client.user.setActivity('/poll');
     let commands = client.application.commands
     commands.create({
         name: 'poll',
@@ -24,7 +24,7 @@ client.on("ready", () =>{
       })
 });
 
-client.on("interactionCreate", async (interaction) => {
+client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()){
         return
     }
@@ -32,11 +32,16 @@ client.on("interactionCreate", async (interaction) => {
     if (commandName === 'poll'){
         const question = options.getString('question');
         const channel = interaction.channel;
-        const a = await channel.threads.create({
+        let mention = `<@${interaction.user.id}>`;
+        const thread = await channel.threads.create({
             name: question,
             autoArchiveDuration: 1440,
           });
-        a.send(question)
+        thread.send(`${mention} asked: ${question}`)
     }
+    interaction.reply({
+      content: 'Thread created',
+      ephemeral: true
+  })
 })
 client.login(process.env.BOT_TOKEN);
